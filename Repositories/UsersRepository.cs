@@ -1,12 +1,23 @@
-﻿using RepositoryContracts;
+﻿using Entities;
+using RepositoryContracts;
 
 namespace Repositories
 {
     public class UsersRepository : IUserRepository
     {
-        public Task<global::Entities.User> AddUser(global::Entities.User user)
+        private readonly ApplicationDbContext _db;
+
+        public UsersRepository(ApplicationDbContext db)
         {
-            throw new NotImplementedException();
+                _db = db;
+        }
+
+        public async Task<User> AddUser(global::Entities.User user)
+        {
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+
+            return user;
         }
 
         public Task<bool> DeleteUser(int userId)

@@ -1,0 +1,20 @@
+[
+  {
+    "UserID": 1,
+    "UserName": "KristijanMn",
+    "Email": "kristijan@gmail.com",
+    "PhoneNummber": "+38177733"
+  },
+  {
+    "UserID": 2,
+    "UserName": "markoM",
+    "Email": "Markom@gmail.com",
+    "PhoneNummber": "+38172637781"
+  },
+  {
+    "UserID": 3,
+    "UserName": "Simasd",
+    "Email": "simasdm@gmail.com",
+    "PhoneNummber": "+38112345"
+  }
+]

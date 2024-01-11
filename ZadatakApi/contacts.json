@@ -1,0 +1,50 @@
+[
+  {
+    "ContactId": 1,
+    "ContactName": "Marko Maric",
+    "PhoneNummber": "+38172637781",
+    "UserID": 1
+  },
+  {
+    "ContactId": 2,
+    "ContactName": "Pera Peric",
+    "PhoneNummber": "+3899999",
+    "UserID": 1
+  },
+  {
+    "ContactId": 3,
+    "ContactName": "Sima Simic",
+    "PhoneNummber": "+38112345",
+    "UserID": 1
+  },
+  {
+    "ContactId": 4,
+    "ContactName": "Marko Maric",
+    "PhoneNummber": "+38172637781",
+    "UserID": 2
+  },
+  {
+    "ContactId":5,
+    "ContactName": "Marko Maric",
+    "PhoneNummber": "+38172637781",
+    "UserID": 3
+  },
+  {
+    "ContactId": 6,
+    "ContactName": "Pera Peric",
+    "PhoneNummber": "+3899999",
+    "UserID": 2
+  },
+  {
+    "ContactId":7,
+    "ContactName": "Sima Simic",
+    "PhoneNummber": "+38112345",
+    "UserID": 2
+  },
+  {
+    "ContactId": 8,
+    "ContactName": "Tosa Tosic",
+    "PhoneNummber": "+9991111",
+    "UserID": 3
+  }
+]
