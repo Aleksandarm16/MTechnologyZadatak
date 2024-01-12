@@ -1,4 +1,5 @@
 ﻿using Entities;
+using System;
 
 namespace RepositoryContracts
 {
@@ -9,7 +10,7 @@ namespace RepositoryContracts
         /// </summary>
         /// <param name="user"></param>
         /// <returns>Returns list of contacts for the curent user </returns>
-        IEnumerable<User> GetAllAvailableUsers(User user);
+        Task<List<User>> GetAllAvaiableContacts(User? user);
 
         /// <summary>
         /// Adds a user object to the data table
@@ -30,7 +31,14 @@ namespace RepositoryContracts
         /// </summary>
         /// <param name="user"></param>
         /// <returns>Returns true if the deletion is successful</returns>
-        Task<bool> DeleteUser (int userId);
+        Task<bool> DeleteUser (int? userId);
+
+        /// <summary>
+        /// Returns a user object based on the given user id
+        /// </summary>
+        /// <param name="personID">PersonID (guid) to search</param>
+        /// <returns>A user object or null</returns>
+        Task<User?> GetUserByUserId(int? userId);
 
     }
 }

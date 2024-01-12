@@ -28,5 +28,27 @@ namespace ZadatakApi.Controllers
 
             return Ok(responseUser);
         }
+        [Route("[action]/{UserID}")]
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableContacts (UserDto? user)
+        {
+            if(user == null || user.UserID == null)
+            {
+                return BadRequest();
+            }
+
+            UserDto? existing_user = await _userService.GetUserById(user.UserID);
+
+            if(existing_user == null)
+            {
+                return NotFound();
+            }
+
+            List<UserDto> mathingContacts = await _userService.GetAllAvaiableContacts(existing_user);
+
+            return Ok(mathingContacts);
+
+        }
+
     }
 }

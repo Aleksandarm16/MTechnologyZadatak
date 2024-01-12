@@ -1,4 +1,5 @@
 ﻿using Entities;
+using Microsoft.EntityFrameworkCore;
 using RepositoryContracts;
 
 namespace Repositories
@@ -12,7 +13,7 @@ namespace Repositories
                 _db = db;
         }
 
-        public async Task<User> AddUser(global::Entities.User user)
+        public async Task<User> AddUser(User user)
         {
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
@@ -20,17 +21,35 @@ namespace Repositories
             return user;
         }
 
-        public Task<bool> DeleteUser(int userId)
+        public async Task<bool> DeleteUser(int? userId)
         {
-            throw new NotImplementedException();
+            _db.Users.RemoveRange(_db.Users.Where(x => x.UserID == userId));
+            int rowsDeleterd = await _db.SaveChangesAsync();
+
+            return rowsDeleterd > 0;
         }
 
-        public IEnumerable<global::Entities.User> GetAllAvailableUsers(global::Entities.User user)
+        public async Task<List<User>> GetAllAvaiableContacts(User? user)
         {
-            throw new NotImplementedException();
+                var userContacts = await _db.Contacts
+                    .Where(c => c.UserID == user.UserID)
+                    .ToListAsync();
+
+                var matchingContacts = await Task.Run(() => _db.Users
+                    .AsEnumerable()
+                    .Where(user => userContacts.Any(contact => contact.PhoneNummber == user.PhoneNummber))
+                    .ToList()
+                    );
+
+                return matchingContacts;
         }
 
-        public Task<global::Entities.User> UpdateUser(global::Entities.User user)
+        public async Task<User?> GetUserByUserId(int? userId)
+        {
+            return await _db.Users.FirstOrDefaultAsync(x => x.UserID == userId);
+        }
+
+        public Task<User> UpdateUser(User user)
         {
             throw new NotImplementedException();
         }

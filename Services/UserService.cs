@@ -16,7 +16,7 @@ namespace Services
 
         #endregion
 
-        public UserService(IUserRepository userRepository, IMapper mapper )
+        public UserService(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -44,19 +44,79 @@ namespace Services
             return _mapper.Map<UserDto>(_mapper.Map<UserDto>(responseUser));
         }
 
-        public Task<bool> DeleteUser(int? userId)
+        public async Task<bool> DeleteUser(int? userId)
         {
-            throw new NotImplementedException();
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+            User? user = await _userRepository.GetUserByUserId(userId);
+            if (user == null)
+            {
+                return false;
+            }
+            await _userRepository.DeleteUser(userId);
+
+            return true;
         }
 
-        public Task<List<UserDto>> GetAllAvaiableContacts(UserDto? user)
+        public async Task<List<UserDto>> GetAllAvaiableContacts(UserDto? user)
         {
-            throw new NotImplementedException();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            User userToSearch = _mapper.Map<User>(user);
+            User? existing_user = await _userRepository.GetUserByUserId(user.UserID);
+            if (existing_user == null)
+            {
+                throw new ArgumentException("Given user id doesn't exist");
+            }
+            List<User> available_users = await _userRepository.GetAllAvaiableContacts(existing_user);
+            List<UserDto> result_users = _mapper.Map<List<UserDto>>(available_users);
+            return result_users;
         }
 
-        public Task<UserDto> UpdateUser(UserDto? user)
+        public async Task<UserDto?> GetUserById(int? userId)
         {
-            throw new NotImplementedException();
+            if (userId == null)
+            {
+                return null;
+            }
+            User? user = await _userRepository.GetUserByUserId(userId);
+            if (user == null)
+            {
+                return null;
+            }
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public async Task<UserDto> UpdateUser(UserDto? userDto)
+        {
+            if (userDto == null)
+            {
+                throw new ArgumentNullException(nameof(userDto));
+            }
+            //validation
+            ValidationHelper.ModelValidation(userDto);
+
+            //Get matching person object to update
+            User? mathingUser = await _userRepository.GetUserByUserId(userDto.UserID);
+            if (mathingUser == null)
+            {
+                throw new ArgumentException("Given user id doesn't exist");
+            }
+            //update all details
+            mathingUser.PhoneNummber = userDto.PhoneNummber;
+            mathingUser.UserName = userDto.UserName;
+            mathingUser.PhoneNummber = userDto.PhoneNummber;
+            mathingUser.Email = userDto.Email;
+
+            //Update
+            await _userRepository.UpdateUser(mathingUser);
+
+            return _mapper.Map<UserDto>(mathingUser);
+
         }
     }
 }

@@ -32,5 +32,13 @@ namespace ServicesContracts
         /// <param name="userId"></param>
         /// <returns>Returns true, if the deletion is successful; otherwise false</returns>
         Task<bool> DeleteUser (int? userId);
+
+
+        /// <summary>
+        /// Returns the user object based on the given user id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Returns matching user object</returns>
+        Task<UserDto?> GetUserById(int? id);
     }
 }
