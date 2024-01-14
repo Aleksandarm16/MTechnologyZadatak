@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ServicesContracts.DTO
 {
@@ -30,6 +25,11 @@ namespace ServicesContracts.DTO
             }
             UserDto userDto = (UserDto)obj;
             return UserID == userDto.UserID && UserName == userDto.UserName && Email == userDto.Email && userDto.PhoneNummber == PhoneNummber;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

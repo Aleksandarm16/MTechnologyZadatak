@@ -73,8 +73,19 @@ namespace Services
                 throw new ArgumentException("Given user id doesn't exist");
             }
             List<User> available_users = await _userRepository.GetAllAvaiableContacts(existing_user);
+            if(available_users == null || available_users.Count.Equals(0))
+            {
+                return new List<UserDto>();
+            }
             List<UserDto> result_users = _mapper.Map<List<UserDto>>(available_users);
             return result_users;
+        }
+
+        public async Task<List<UserDto>> GetAllUsers()
+        {
+            var users = await _userRepository.GetAllUsers();
+
+            return _mapper.Map<List<UserDto>>(users);
         }
 
         public async Task<UserDto?> GetUserById(int? userId)

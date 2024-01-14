@@ -26,6 +26,7 @@ builder.Services.AddScoped<IUserRepository, UsersRepository>();
 builder.Services.AddScoped<IContactRepository, ContactsRepository>();
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IContactService, ContactService>();
 
 builder.Services.AddSingleton(mapper);
 

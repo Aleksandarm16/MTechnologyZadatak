@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Entities;
+using Microsoft.AspNetCore.Mvc;
+using Services;
 using ServicesContracts;
 using ServicesContracts.DTO;
 
@@ -17,7 +19,7 @@ namespace ZadatakApi.Controllers
 
         [Route("[action]")]
         [HttpPost]
-        public async Task <IActionResult> Create(UserDto userDto)
+        public async Task <IActionResult> CreateUser(UserDto userDto)
         {
             if(!ModelState.IsValid)
             {
@@ -28,16 +30,16 @@ namespace ZadatakApi.Controllers
 
             return Ok(responseUser);
         }
-        [Route("[action]/{UserID}")]
+        [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> GetAvailableContacts (UserDto? user)
+        public async Task<IActionResult> GetAvailableContacts (int? userId)
         {
-            if(user == null || user.UserID == null)
+            if(userId == null)
             {
                 return BadRequest();
             }
 
-            UserDto? existing_user = await _userService.GetUserById(user.UserID);
+            UserDto? existing_user = await _userService.GetUserById(userId);
 
             if(existing_user == null)
             {
@@ -48,6 +50,61 @@ namespace ZadatakApi.Controllers
 
             return Ok(mathingContacts);
 
+        }
+
+        [Route("[action]")]
+        [HttpDelete]
+        public async Task <IActionResult> DeleteUser (int? userId)
+        {
+            if(userId==null)
+            {
+                return BadRequest();
+            }
+            UserDto? existing_user = await _userService.GetUserById(userId);
+
+            if (existing_user == null)
+            {
+                return NotFound();
+            }
+
+            if (await _userService.DeleteUser(userId))
+            {
+                return Ok("User deleted");
+            }
+            else
+            {
+                return BadRequest("Something went wrong, can't delete contact");
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]/{userId}")]
+        public async Task <IActionResult> EditUser (UserDto? user)
+        {
+
+            UserDto? existing_user = await _userService.GetUserById(user?.UserID);
+
+            if (existing_user == null)
+            {
+                return BadRequest("User was not found");
+            }
+            if(ModelState.IsValid)
+            {
+                UserDto updatedUser = await _userService.UpdateUser(user);
+                return Ok(updatedUser);
+            }
+            else
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return BadRequest(errors);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _userService.GetAllUsers());
         }
 
     }

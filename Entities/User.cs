@@ -17,5 +17,6 @@ namespace Entities
 
         [StringLength(15)]
         public string? PhoneNummber { get; set; }
+        public virtual ICollection<Contact>? Contacts { get; set;}
     }
 }

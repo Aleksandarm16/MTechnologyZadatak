@@ -2,12 +2,12 @@
 
 namespace Entities
 {
-    public class ApplicationDbContext :DbContext
+    public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
 
-        public virtual DbSet <User> Users { get; set; }
-        public virtual DbSet <Contact> Contacts { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Contact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,13 @@ namespace Entities
                 entity.ToTable("Contacts");
                 entity.Property(e => e.ContactId).ValueGeneratedOnAdd();
             });
+
+            modelBuilder.Entity<Contact>(entity =>
+                {
+                    entity.HasOne<User>(u => u.User)
+                    .WithMany(c => c.Contacts)
+                    .HasForeignKey(p => p.UserID);
+                });
 
 
             //Seed to Contact

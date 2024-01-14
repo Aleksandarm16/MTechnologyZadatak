@@ -23,7 +23,7 @@ namespace ServicesContracts
         /// Updates the specified user details based on the given UserID
         /// </summary>
         /// <param name="user"></param>
-        /// <returns>Returns the user response object after updation</returns>
+        /// <returns>Returns the user response object after updating</returns>
         Task<UserDto> UpdateUser(UserDto? user);
 
         /// <summary>
@@ -40,5 +40,12 @@ namespace ServicesContracts
         /// <param name="id"></param>
         /// <returns>Returns matching user object</returns>
         Task<UserDto?> GetUserById(int? id);
+
+
+        /// <summary>
+        /// Returns all users
+        /// </summary>
+        /// <returns>Returns  a list of user dto objects</returns>
+        Task<List<UserDto>> GetAllUsers();
     }
 }

@@ -31,6 +31,7 @@
     <ProjectReference Include="..\RepositoryContracts\RepositoryContracts.csproj" />
     <ProjectReference Include="..\ServicesContracts\ServicesContracts.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
+    <ProjectReference Include="..\ZadatakApi\ZadatakApi.csproj" />
   </ItemGroup>
 
 </Project>

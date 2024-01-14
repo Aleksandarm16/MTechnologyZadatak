@@ -2,18 +2,13 @@
 using AutoMapper;
 using Entities;
 using FluentAssertions;
-using Microsoft.SqlServer.Server;
 using Moq;
 using RepositoryContracts;
 using Services;
 using Services.EntityProfiler;
 using ServicesContracts;
 using ServicesContracts.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics.Metrics;
 using Xunit;
 
 namespace CRUDTests
@@ -46,7 +41,7 @@ namespace CRUDTests
         }
 
         #region AddUser
-
+        //If the user is invalid it should throw argument null exception
         [Fact]
         public async Task AddUser_Nulluser_ToBeArgumentNullException()
         {
@@ -197,6 +192,7 @@ namespace CRUDTests
                 .With(x => x.UserName, "test1")
                 .With(x => x.PhoneNummber, "+38167233")
                 .With(x => x.Email, "test@gmail.com")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
                 .Create();
 
             UserDto userDto = _mapper.Map<UserDto>(user);
@@ -226,6 +222,7 @@ namespace CRUDTests
                 .With(x => x.UserName, "test1")
                 .With(x => x.PhoneNummber, "+38167233")
                 .With(x => x.Email, "test@gmail.com")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
                 .Create();
 
             _userRepositoryMock.Setup(x => x.DeleteUser(It.IsAny<int>()))
@@ -252,6 +249,7 @@ namespace CRUDTests
                 .With(x => x.UserName, "test1")
                 .With(x => x.PhoneNummber, "+38167233")
                 .With(x => x.Email, "test@gmail.com")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
                 .Create();
 
             _userRepositoryMock.Setup(x => x.DeleteUser(1))
@@ -280,6 +278,7 @@ namespace CRUDTests
                 .With(temp => temp.UserName, "Marko")
                 .With(temp => temp.UserID, 1)
                 .With(temp => temp.PhoneNummber, "+3816999")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
                 .Create();
 
             UserDto user_for_send = _mapper.Map<UserDto>(user);
@@ -328,21 +327,25 @@ namespace CRUDTests
                 .With(temp => temp.ContactName, "test1")
                 .With(temp => temp.UserID, 1)
                 .With(temp => temp.PhoneNummber, "+381654")
+                .With(temp => temp.User, null as User)
                 .Create(),
             _fixture.Build<Contact>()
                 .With(temp => temp.ContactName, "test2")
                 .With(temp => temp.UserID, 1)
                 .With(temp => temp.PhoneNummber, "+3816546")
+                .With(temp => temp.User, null as User)
                 .Create(),
             _fixture.Build<Contact>()
                 .With(temp => temp.ContactName, "test3")
                 .With(temp => temp.UserID, 1)
                 .With(temp => temp.PhoneNummber, "+3816549")
+                .With(temp => temp.User, null as User)
                 .Create(),
             _fixture.Build<Contact>()
                 .With(temp => temp.ContactName, "test13")
                 .With(temp => temp.UserID, 2)
                 .With(temp => temp.PhoneNummber, "+3816543")
+                .With(temp => temp.User, null as User)
                 .Create(),
             };
 
@@ -352,27 +355,33 @@ namespace CRUDTests
                 .With(temp => temp.UserName, "Marko")
                 .With(temp => temp.UserID, 1)
                 .With(temp => temp.PhoneNummber, "+3816999")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
                 .Create(),
             _fixture.Build<User>()
                 .With(temp => temp.UserName, "Nikola")
                 .With(temp => temp.UserID, 1)
                 .With(temp => temp.PhoneNummber, "+3816546")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
                 .Create(),
             _fixture.Build<User>()
                 .With(temp => temp.UserName, "Pera")
                 .With(temp => temp.UserID, 1)
                 .With(temp => temp.PhoneNummber, "+3816549")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
                 .Create(),
              _fixture.Build<User>()
                 .With(temp => temp.UserName, "Sima")
                 .With(temp => temp.UserID, 2)
                 .With(temp => temp.PhoneNummber, "+381654932")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
                 .Create()
             };
 
-            List<User> excpected_result = users.Take(users.Count - 1).ToList();
+            List<User> excpected_entity =  users.Take(users.Count - 1).ToList();
 
-            _userRepositoryMock.Setup(temp => temp.GetAllAvaiableContacts(users.First())).ReturnsAsync(excpected_result);
+            List<UserDto> excpected_result = _mapper.Map<List<UserDto>>(excpected_entity);
+
+            _userRepositoryMock.Setup(temp => temp.GetAllAvaiableContacts(users.First())).ReturnsAsync(excpected_entity);
             _userRepositoryMock.Setup(temp => temp.GetUserByUserId(users.First().UserID)).ReturnsAsync(users.First());
 
             UserDto user = _mapper.Map<UserDto>(users.First());
@@ -383,6 +392,71 @@ namespace CRUDTests
             //Assert
             users_from_get.Should().BeEquivalentTo(excpected_result);
 
+        }
+        #endregion
+
+        #region GetAllUsers
+
+        //The GetAllUsers() should return an empty list by default
+        [Fact]
+        public async Task GetAllUsers_ToBeEmptyList()
+        {
+            //Arrange
+            var users = new List<User>();
+            _userRepositoryMock
+              .Setup(temp => temp.GetAllUsers())
+              .ReturnsAsync(users);
+
+            //Act
+            List<UserDto> users_from_get = await _userService.GetAllUsers();
+
+            //Assert
+            users_from_get.Should().BeEmpty();
+        }
+
+
+        //First, we will add few users; and then when we call GetAllUsers(), it should return the same users that were added
+        [Fact]
+        public async Task GetAllUsers_WithFewUsers_ToBeSuccessful()
+        {
+            //Arrange
+            List<User> users = new List<User>()
+            {
+            _fixture.Build<User>()
+                .With(temp => temp.UserName, "Marko")
+                .With(temp => temp.UserID, 1)
+                .With(temp => temp.PhoneNummber, "+3816999")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create(),
+            _fixture.Build<User>()
+                .With(temp => temp.UserName, "Nikola")
+                .With(temp => temp.UserID, 1)
+                .With(temp => temp.PhoneNummber, "+3816546")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create(),
+            _fixture.Build<User>()
+                .With(temp => temp.UserName, "Pera")
+                .With(temp => temp.UserID, 1)
+                .With(temp => temp.PhoneNummber, "+3816549")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create(),
+             _fixture.Build<User>()
+                .With(temp => temp.UserName, "Sima")
+                .With(temp => temp.UserID, 2)
+                .With(temp => temp.PhoneNummber, "+381654932")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create()
+            };
+
+            List<UserDto> user_response_list_expected = _mapper.Map<List<UserDto>>(users);           
+
+            _userRepositoryMock.Setup(temp => temp.GetAllUsers()).ReturnsAsync(users);
+
+            //Act
+            List<UserDto> users_list_from_get = await _userService.GetAllUsers();
+
+            //Assert
+            users_list_from_get.Should().BeEquivalentTo(user_response_list_expected);
         }
         #endregion
     }

@@ -1,5 +1,4 @@
 ﻿using Entities;
-using System;
 
 namespace RepositoryContracts
 {
@@ -36,9 +35,16 @@ namespace RepositoryContracts
         /// <summary>
         /// Returns a user object based on the given user id
         /// </summary>
-        /// <param name="personID">PersonID (guid) to search</param>
+        /// <param name="personID"></param>
         /// <returns>A user object or null</returns>
         Task<User?> GetUserByUserId(int? userId);
+
+        /// <summary>
+        /// Returns all registered users
+        /// </summary>
+        /// <returns>Returns a list of user objects from the table</returns>
+        Task<List<User>> GetAllUsers();
+
 
     }
 }

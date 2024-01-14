@@ -44,14 +44,31 @@ namespace Repositories
                 return matchingContacts;
         }
 
+        public async Task<List<User>> GetAllUsers()
+        {
+            return await _db.Users.ToListAsync();
+        }
+
         public async Task<User?> GetUserByUserId(int? userId)
         {
             return await _db.Users.FirstOrDefaultAsync(x => x.UserID == userId);
         }
 
-        public Task<User> UpdateUser(User user)
+        public async Task<User> UpdateUser(User user)
         {
-            throw new NotImplementedException();
+            User? matchingUser = await _db.Users.FirstOrDefaultAsync(temp => temp.UserID == user.UserID);
+            
+            if (matchingUser == null)
+            {
+                return user;
+            }
+            matchingUser.PhoneNummber = user.PhoneNummber;
+            matchingUser.UserName = user.UserName;
+            matchingUser.Email = user.Email;
+
+            int countUpdated = await _db.SaveChangesAsync();
+
+            return matchingUser;
         }
     }
 }
