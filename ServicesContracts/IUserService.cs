@@ -47,5 +47,12 @@ namespace ServicesContracts
         /// </summary>
         /// <returns>Returns  a list of user dto objects</returns>
         Task<List<UserDto>> GetAllUsers();
+
+        /// <summary>
+        /// Send message to existing Contact in sender phonebook
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns>True if successful, false if failed</returns>
+        Task<bool> SendMessageToContats(MessageDto? message);
     }
 }

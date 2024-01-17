@@ -459,5 +459,197 @@ namespace CRUDTests
             users_list_from_get.Should().BeEquivalentTo(user_response_list_expected);
         }
         #endregion
+
+
+        #region SendMessage
+
+        //Send Message invalid message throws Argument Null Exception
+
+        [Fact]
+        public async Task SendMessage_InvalidMessage_ThrowsArgumentNull()
+        {
+            //Arrange           
+
+            MessageDto? message = null;
+
+            //Act
+
+            Func<Task> action = async () =>
+            {
+                await _userService.SendMessageToContats(message);
+            };
+
+            //Assert
+            await action.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        //If we supply invalid Recipient or it isn't in found with GetAvailableContacts() it should return false
+        [Fact]
+        public async Task SendMessage_ContactNotFound_ReturnsFalse()
+        {
+            //Arrange
+            List<Contact> contacts = new List<Contact>()
+            {
+            _fixture.Build<Contact>()
+                .With(temp => temp.ContactName, "test1")
+                .With(temp => temp.UserID, 1)
+                .With(temp => temp.PhoneNummber, "+381654")
+                .With(temp => temp.User, null as User)
+                .Create(),
+            _fixture.Build<Contact>()
+                .With(temp => temp.ContactName, "Nikola")
+                .With(temp => temp.UserID, 2)
+                .With(temp => temp.PhoneNummber, "+3816546")
+                .With(temp => temp.User, null as User)
+                .Create(),
+            _fixture.Build<Contact>()
+                .With(temp => temp.ContactName, "test3")
+                .With(temp => temp.UserID, 3)
+                .With(temp => temp.PhoneNummber, "+3816549")
+                .With(temp => temp.User, null as User)
+                .Create(),
+            _fixture.Build<Contact>()
+                .With(temp => temp.ContactName, "test13")
+                .With(temp => temp.UserID, 4)
+                .With(temp => temp.PhoneNummber, "+3816543")
+                .With(temp => temp.User, null as User)
+                .Create(),
+            };
+
+            List<User> users = new List<User>()
+            {
+            _fixture.Build<User>()
+                .With(temp => temp.UserName, "Marko")
+                .With(temp => temp.UserID, 1)
+                .With(temp => temp.PhoneNummber, "+3816999")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create(),
+            _fixture.Build<User>()
+                .With(temp => temp.UserName, "Nikola")
+                .With(temp => temp.UserID, 2)
+                .With(temp => temp.PhoneNummber, "+3816546")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create(),
+            _fixture.Build<User>()
+                .With(temp => temp.UserName, "Pera")
+                .With(temp => temp.UserID, 3)
+                .With(temp => temp.PhoneNummber, "+3816549")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create(),
+             _fixture.Build<User>()
+                .With(temp => temp.UserName, "Sima")
+                .With(temp => temp.UserID, 4)
+                .With(temp => temp.PhoneNummber, "+381654932")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create()
+            };
+            MessageDto message = _fixture.Build<MessageDto>()
+                .With(temp => temp.Message,"test message")
+                .With(temp => temp.Sender, "Marko")
+                .With(temp => temp.SenderId,1)
+                .With(temp => temp.Recipient, "Nikola")
+                .With(temp => temp.RecipientId,2)
+                .With(temp => temp.Id,1)
+                .Create();
+
+            _userRepositoryMock.Setup(temp => temp.GetUserByUserId(users.First().UserID)).ReturnsAsync(users.First());
+            _userRepositoryMock.Setup(temp => temp.GetUserByUserId(users[1].UserID)).ReturnsAsync(users[1]);
+            _userRepositoryMock.Setup(temp => temp.GetAllAvaiableContacts(users.First())).ReturnsAsync(new List<User>());
+
+            //Act
+
+            bool result = await _userService.SendMessageToContats(message);
+
+            //Assert
+
+            result.Should().BeFalse();  
+        }
+
+        //If we supply valid Recipient SendMessageToContact() should return true
+        [Fact]
+        public async Task SendMessage_ToBeSuccessful()
+        {
+            //Arrange
+            List<Contact> contacts = new List<Contact>()
+            {
+            _fixture.Build<Contact>()
+                .With(temp => temp.ContactName, "test1")
+                .With(temp => temp.UserID, 1)
+                .With(temp => temp.PhoneNummber, "+381654")
+                .With(temp => temp.User, null as User)
+                .Create(),
+            _fixture.Build<Contact>()
+                .With(temp => temp.ContactName, "Nikola")
+                .With(temp => temp.UserID, 1)
+                .With(temp => temp.PhoneNummber, "+3816546")
+                .With(temp => temp.User, null as User)
+                .Create(),
+            _fixture.Build<Contact>()
+                .With(temp => temp.ContactName, "test3")
+                .With(temp => temp.UserID, 1)
+                .With(temp => temp.PhoneNummber, "+3816549")
+                .With(temp => temp.User, null as User)
+                .Create(),
+            _fixture.Build<Contact>()
+                .With(temp => temp.ContactName, "test13")
+                .With(temp => temp.UserID, 2)
+                .With(temp => temp.PhoneNummber, "+3816543")
+                .With(temp => temp.User, null as User)
+                .Create(),
+            };
+
+            List<User> users = new List<User>()
+            {
+            _fixture.Build<User>()
+                .With(temp => temp.UserName, "Marko")
+                .With(temp => temp.UserID, 1)
+                .With(temp => temp.PhoneNummber, "+3816999")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create(),
+            _fixture.Build<User>()
+                .With(temp => temp.UserName, "Nikola")
+                .With(temp => temp.UserID, 2)
+                .With(temp => temp.PhoneNummber, "+3816546")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create(),
+            _fixture.Build<User>()
+                .With(temp => temp.UserName, "Pera")
+                .With(temp => temp.UserID, 3)
+                .With(temp => temp.PhoneNummber, "+3816549")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create(),
+             _fixture.Build<User>()
+                .With(temp => temp.UserName, "Sima")
+                .With(temp => temp.UserID, 4)
+                .With(temp => temp.PhoneNummber, "+381654932")
+                .With(temp => temp.Contacts, null as ICollection<Contact>)
+                .Create()
+            };
+            MessageDto message = _fixture.Build<MessageDto>()
+                .With(temp => temp.Message, "test message")
+                .With(temp => temp.Sender, "Marko")
+                .With(temp => temp.SenderId, 1)
+                .With(temp => temp.Recipient, "Nikola")
+                .With(temp => temp.RecipientId,2)
+                .With(temp => temp.Id, 1)
+                .Create();
+
+            List<User> excpected_entity = users.Skip(1).Take(1).ToList();
+
+            _userRepositoryMock.Setup(temp => temp.GetUserByUserId(users.First().UserID)).ReturnsAsync(users.First());
+            _userRepositoryMock.Setup(temp => temp.GetUserByUserId(users[1].UserID)).ReturnsAsync(users[1]);
+            _userRepositoryMock.Setup(temp => temp.GetAllAvaiableContacts(users.First())).ReturnsAsync(excpected_entity);
+
+
+            //Act
+
+            bool result = await _userService.SendMessageToContats(message);
+
+            //Assert
+
+            result.Should().BeTrue();
+        }
+
+        #endregion
     }
 }

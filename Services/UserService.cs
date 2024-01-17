@@ -102,6 +102,33 @@ namespace Services
             return _mapper.Map<UserDto>(user);
         }
 
+        public async Task<bool> SendMessageToContats(MessageDto? message)
+        {
+            if(message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+            User? existingSender = await _userRepository.GetUserByUserId(message.SenderId);
+            if (existingSender == null)
+            {
+                throw new ArgumentException("Given sender id doesn't exist");
+            }
+            User? existingRecipitent = await _userRepository.GetUserByUserId(message.RecipientId);
+            if (existingRecipitent == null)
+            {
+                throw new ArgumentException("Given recipient id doesn't exist");
+            }
+
+            List<User> senderContacts_entity = await _userRepository.GetAllAvaiableContacts(existingSender);
+            List<UserDto> senderContacts = _mapper.Map<List<UserDto>>(senderContacts_entity);
+
+            if(senderContacts.Contains(_mapper.Map<UserDto>(existingRecipitent)))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public async Task<UserDto> UpdateUser(UserDto? userDto)
         {
             if (userDto == null)

@@ -107,5 +107,17 @@ namespace ZadatakApi.Controllers
             return Ok(await _userService.GetAllUsers());
         }
 
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> SendMessage([FromBody] MessageDto? message)
+        {
+            bool result = await _userService.SendMessageToContats(message);
+            if(result)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
     }
 }

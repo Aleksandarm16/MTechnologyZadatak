@@ -326,5 +326,6 @@ namespace CRUDTests
             contacts_list_from_get.Should().BeEquivalentTo(contact_response_list_expected);
         }
         #endregion
+
     }
 }

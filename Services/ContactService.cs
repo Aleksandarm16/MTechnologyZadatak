@@ -79,7 +79,6 @@ namespace Services
             }
             return _mapper.Map<ContactDto>(contact);
         }
-         
 
         public async Task<ContactDto> UpdateContact(ContactDto? contact)
         {
